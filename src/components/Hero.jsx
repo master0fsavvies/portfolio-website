@@ -52,7 +52,7 @@ const Hero = () => {
       <div id="video-frame" className="relative z-10 h-dvh w-screen overflow-hidden rounded-lg bg-blue-75">
         <video
           ref={videoRef}
-          src="/assets/videos/Hero.mp4"
+          src="videos/Hero.mp4"
           autoPlay
           loop
           muted

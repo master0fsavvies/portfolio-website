@@ -89,7 +89,7 @@ const Features = () => {
 
             <BentoTilt className = "border-hsla relative mb-7 h-96 w-full overflow-hidden rounded-md md:h-[65vh]">
                 <BentoCard 
-                    src="/assets/videos/Particles.mp4"
+                    src="/videos/Particles.mp4"
                     title={<>3D in Blender</>}
                     description = "My favorite 3D software is Blender, it is a free and open-source program that can 3D model, rig, animate, do vfx, physics, and even stuff in 2D as well."
                 />
@@ -98,7 +98,7 @@ const Features = () => {
             <div className = "grid h-[135vh] w-full grid-cols-2 grid-rows-3 gap-7">
                 <BentoTilt className="bento-tilt_1 row-span-1 md:col-span-1 md:row-span-2">
                     <BentoCard 
-                        src="/assets/videos/Arcade.mp4"
+                        src="/videos/Arcade.mp4"
                         title={<>Arcade Repair</>}
                         description = "On the side, I fix old arcade machines."
                     />
@@ -106,7 +106,7 @@ const Features = () => {
 
                 <BentoTilt className="bento-tilt_1 row-span-1 ms-32 md:col-span-1 md:ms-0">
                     <BentoCard 
-                        src="/assets/videos/BongoCat.mp4"
+                        src="/videos/BongoCat.mp4"
                         title={<>Programming</>}
                         description = "I have been studying Computer Science for 4 years now, my favorite language is JavaScript."
                     />
@@ -114,7 +114,7 @@ const Features = () => {
 
                 <BentoTilt className="bento-tilt_1 me-14 md:col-span-1 md:me-0">
                     <BentoCard 
-                        src="/assets/videos/GameDev.mp4"
+                        src="/videos/GameDev.mp4"
                         title={<>Arcade Dev</>}
                         description = "Working solo on a custom arcade machine, 'Shotgun Wedding', coming to San Diego!"
                     />
@@ -131,7 +131,7 @@ const Features = () => {
 
                 <BentoTilt className="bento-tilt_2">
                     <video
-                        src="/assets/videos/Ecclesia.mp4"
+                        src="/videos/Ecclesia.mp4"
                         loop
                         muted
                         autoPlay
