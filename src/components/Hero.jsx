@@ -11,8 +11,12 @@ const Hero = () => {
   const [loading, setLoading] = useState(true);
   const videoRef = useRef(null);
 
-  const handleVideoLoad = () => {
-    setLoading(false);
+  const handleVideoBuffer = () => {
+    const video = videoRef.current;
+    if (!video || !Number.isFinite(video.duration) || video.buffered.length === 0) return;
+
+    const bufferedEnd = video.buffered.end(video.buffered.length - 1);
+    if (bufferedEnd >= video.duration - 0.25) setLoading(false);
   };
 
   useGSAP(() => {
@@ -59,7 +63,10 @@ const Hero = () => {
           playsInline
           preload="auto"
           className="absolute left-0 top-0 size-full object-cover object-center"
-          onLoadedData={handleVideoLoad}
+          onLoadedMetadata={handleVideoBuffer}
+          onProgress={handleVideoBuffer}
+          onCanPlayThrough={handleVideoBuffer}
+          onError={() => setLoading(false)}
         />
 
         
