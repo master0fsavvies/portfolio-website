@@ -52,10 +52,12 @@ const Hero = () => {
       <div id="video-frame" className="relative z-10 h-dvh w-screen overflow-hidden rounded-lg bg-blue-75">
         <video
           ref={videoRef}
-          src="videos/Hero.mp4"
+          src="/portfolio-website/videos/Hero.mp4#t=0.1"
           autoPlay
           loop
           muted
+          playsInline
+          preload="auto"
           className="absolute left-0 top-0 size-full object-cover object-center"
           onLoadedData={handleVideoLoad}
         />
@@ -73,7 +75,13 @@ const Hero = () => {
             <p className="mb-5 max-w-64 font-robert-regular text-blue-100">
               Coding, programming, and animating in 3D
             </p>
-            <Button id="watch-trailer" title="Watch Trailer" leftIcon={<TiLocationArrow />} containerClass="bg-yellow-300 flex-center gap-1" />
+            {<Button 
+              id="watch-trailer" 
+              title="Watch More" 
+              leftIcon={<TiLocationArrow />} 
+              containerClass="bg-violet-300 flex-center gap-1" 
+              href="https://www.youtube.com/@DuckyDog3D"
+            />}
           </div>
         </div>
       </div>

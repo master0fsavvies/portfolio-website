@@ -1,16 +1,14 @@
 import clsx from "clsx";
 
-const Button = ({ id, title, rightIcon, leftIcon, containerClass }) => {
-  return (
-    <button id={id} 
-        className={clsx(
-        "group relative z-10 w-fit cursor-pointer overflow-hidden rounded-[30px] bg-violet-50 px-7 py-3 text-black duration-500 hover:scale-105 hover:rounded-[10px] hover:skew-y-2 hover:skew-x-4",
-        containerClass
-      )}
-    >
-      
+const Button = ({ id, title, rightIcon, leftIcon, containerClass, href }) => {
+  const baseClasses = clsx(
+    "group relative z-10 w-fit cursor-pointer overflow-hidden rounded-[30px] bg-violet-50 px-7 py-3 text-black duration-500 hover:scale-105 hover:rounded-[10px] hover:skew-y-2 hover:skew-x-4",
+    containerClass
+  );
+
+  const content = (
+    <>
       {leftIcon}
-    
       <span className="relative inline-flex overflow-hidden font-general text-xs uppercase">
         <div className="translate-y-0 skew-y-0 transition duration-500 group-hover:translate-y-[-160%] group-hover:skew-y-12">
           {title}
@@ -19,11 +17,30 @@ const Button = ({ id, title, rightIcon, leftIcon, containerClass }) => {
           {title}
         </div>
       </span>
-
       {rightIcon}
+    </>
+  );
 
+  // 🔥 key part
+  if (href) {
+    return (
+      <a
+        id={id}
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={baseClasses}
+      >
+        {content}
+      </a>
+    );
+  }
+
+  return (
+    <button id={id} className={baseClasses}>
+      {content}
     </button>
-  )
-}
+  );
+};
 
-export default Button
+export default Button;

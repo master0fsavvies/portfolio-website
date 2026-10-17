@@ -3,7 +3,7 @@
 body {
   font-family: 'General Sans', sans-serif;
   width: 100dvw;
-  background-color: '#dfdff0';
+  background-color: black;
   overflow-x: hidden;
 }
 
@@ -63,7 +63,7 @@ body {
 }
 
 @utility floating-nav {
-  @apply bg-black rounded-lg border;
+  @apply bg-black/70 rounded-lg border backdrop-blur-xs;
 }
 
 @utility absolute-center {
@@ -163,7 +163,7 @@ body {
   body {
     width: 100dvw;
     overflow-x: hidden;
-    background-color: #dfdff0;
+    background-color: black;
     font-family: 'General Sans', sans-serif;
   }
 }
