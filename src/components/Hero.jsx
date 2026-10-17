@@ -10,13 +10,18 @@ gsap.registerPlugin(ScrollTrigger);
 const Hero = () => {
   const [loading, setLoading] = useState(true);
   const videoRef = useRef(null);
+  const videoStarted = useRef(false);
 
   const handleVideoBuffer = () => {
     const video = videoRef.current;
     if (!video || !Number.isFinite(video.duration) || video.buffered.length === 0) return;
 
     const bufferedEnd = video.buffered.end(video.buffered.length - 1);
-    if (bufferedEnd >= video.duration - 0.25) setLoading(false);
+    if (bufferedEnd >= video.duration - 0.25 && !videoStarted.current) {
+      videoStarted.current = true;
+      video.currentTime = 0;
+      video.play().catch(() => setLoading(false));
+    }
   };
 
   useGSAP(() => {
@@ -56,8 +61,7 @@ const Hero = () => {
       <div id="video-frame" className="relative z-10 h-dvh w-screen overflow-hidden rounded-lg bg-blue-75">
         <video
           ref={videoRef}
-          src="/portfolio-website/videos/Hero.mp4#t=0.1"
-          autoPlay
+          src="/portfolio-website/videos/Hero.mp4"
           loop
           muted
           playsInline
@@ -66,6 +70,7 @@ const Hero = () => {
           onLoadedMetadata={handleVideoBuffer}
           onProgress={handleVideoBuffer}
           onCanPlayThrough={handleVideoBuffer}
+          onPlaying={() => setLoading(false)}
           onError={() => setLoading(false)}
         />
 
