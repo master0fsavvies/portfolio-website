@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/all";
@@ -14,21 +14,46 @@ const Hero = () => {
 
   const handleVideoBuffer = () => {
     const video = videoRef.current;
-    if (!video || !Number.isFinite(video.duration) || video.buffered.length === 0) return;
+
+    if (
+      !video ||
+      !Number.isFinite(video.duration) ||
+      video.buffered.length === 0
+    ) {
+      return;
+    }
 
     const bufferedEnd = video.buffered.end(video.buffered.length - 1);
-    if (bufferedEnd >= video.duration - 0.25 && !videoStarted.current) {
-      videoStarted.current = true;
-      video.currentTime = 0;
-      video.play().catch(() => setLoading(false));
+
+    if (
+      bufferedEnd >= video.duration - 0.25 &&
+      !videoStarted.current
+    ) {
+      // Hide the loading screen first
+      setLoading(false);
     }
   };
+
+  useEffect(() => {
+    // This runs after the loading screen has been removed
+    if (!loading && videoRef.current && !videoStarted.current) {
+      const video = videoRef.current;
+
+      videoStarted.current = true;
+      video.currentTime = 0;
+
+      video.play().catch((error) => {
+        console.error("Video could not play:", error);
+      });
+    }
+  }, [loading]);
 
   useGSAP(() => {
     gsap.set("#video-frame", {
       clipPath: "polygon(14% 0, 72% 0, 88% 90%, 0 95%)",
       borderRadius: "0% 0% 40% 10%",
     });
+
     gsap.from("#video-frame", {
       clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)",
       borderRadius: "0% 0% 0% 0%",
@@ -40,7 +65,6 @@ const Hero = () => {
         scrub: true,
       },
     });
-    
   });
 
   return (
@@ -54,11 +78,15 @@ const Hero = () => {
           </div>
         </div>
       )}
+
       <h1 className="special-font hero-heading absolute bottom-5 right-5 z-1 text-violet-300">
-            IN 3D
+        IN 3D
       </h1>
 
-      <div id="video-frame" className="relative z-10 h-dvh w-screen overflow-hidden rounded-lg bg-blue-75">
+      <div
+        id="video-frame"
+        className="relative z-10 h-dvh w-screen overflow-hidden rounded-lg bg-blue-75"
+      >
         <video
           ref={videoRef}
           src="/portfolio-website/videos/Hero.mp4"
@@ -70,12 +98,8 @@ const Hero = () => {
           onLoadedMetadata={handleVideoBuffer}
           onProgress={handleVideoBuffer}
           onCanPlayThrough={handleVideoBuffer}
-          onPlaying={() => setLoading(false)}
           onError={() => setLoading(false)}
         />
-
-        
-
 
         <h1 className="special-font hero-heading absolute bottom-5 right-5 z-40 text-blue-75">
           IN 3D
@@ -83,17 +107,21 @@ const Hero = () => {
 
         <div className="absolute left-0 top-0 z-40 size-full">
           <div className="mt-24 px-5 sm:px-10">
-            <h1 className="special-font hero-heading text-blue-75">Creating</h1>
+            <h1 className="special-font hero-heading text-blue-75">
+              Creating
+            </h1>
+
             <p className="mb-5 max-w-64 font-robert-regular text-blue-100">
               Coding, programming, and animating in 3D
             </p>
-            {<Button 
-              id="watch-trailer" 
-              title="Watch More" 
-              leftIcon={<TiLocationArrow />} 
-              containerClass="bg-violet-300 flex-center gap-1" 
+
+            <Button
+              id="watch-trailer"
+              title="Watch More"
+              leftIcon={<TiLocationArrow />}
+              containerClass="bg-violet-300 flex-center gap-1"
               href="https://www.youtube.com/@DuckyDog3D"
-            />}
+            />
           </div>
         </div>
       </div>
