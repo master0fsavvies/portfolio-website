@@ -12,27 +12,10 @@ const Hero = () => {
   const videoRef = useRef(null);
   const videoStarted = useRef(false);
 
-  const handleVideoBuffer = () => {
-    const video = videoRef.current;
-
-    if (
-      !video ||
-      !Number.isFinite(video.duration) ||
-      video.buffered.length === 0
-    ) {
-      return;
-    }
-
-    const bufferedEnd = video.buffered.end(video.buffered.length - 1);
-
-    if (
-      bufferedEnd >= video.duration - 0.25 &&
-      !videoStarted.current
-    ) {
-      // Hide the loading screen first
-      setLoading(false);
-    }
+  const handleVideoReady = () => {
+    setLoading(false);
   };
+
 
   useEffect(() => {
     // This runs after the loading screen has been removed
@@ -95,10 +78,11 @@ const Hero = () => {
           playsInline
           preload="auto"
           className="absolute left-0 top-0 size-full object-cover object-center"
-          onLoadedMetadata={handleVideoBuffer}
-          onProgress={handleVideoBuffer}
-          onCanPlayThrough={handleVideoBuffer}
-          onError={() => setLoading(false)}
+          onLoadedData={handleVideoReady}
+          onError={(event) => {
+            console.error("Video failed to load:", event);
+            setLoading(false);
+          }}
         />
 
         <h1 className="special-font hero-heading absolute bottom-5 right-5 z-40 text-blue-75">
