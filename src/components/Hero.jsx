@@ -12,24 +12,71 @@ const Hero = () => {
   const videoRef = useRef(null);
   const videoStarted = useRef(false);
 
-  const handleVideoReady = () => {
+  const videoSrc = "/portfolio-website/videos/Hero.mp4";
+
+  const logVideoState = (eventName, video) => {
+    console.log(`[VIDEO] ${eventName}`, {
+      src: video.currentSrc || video.src,
+      readyState: video.readyState,
+      networkState: video.networkState,
+      duration: video.duration,
+      currentTime: video.currentTime,
+      buffered:
+        video.buffered.length > 0
+          ? `${video.buffered
+              .end(video.buffered.length - 1)
+              .toFixed(2)} seconds`
+          : "nothing buffered",
+      error: video.error
+        ? {
+            code: video.error.code,
+            message: video.error.message,
+          }
+        : null,
+    });
+  };
+
+  const handleVideoReady = (event) => {
+    console.log("[VIDEO] Video data loaded");
+    logVideoState("loaded data", event.currentTarget);
+
+    // Hide the loading screen
     setLoading(false);
   };
 
-
   useEffect(() => {
-    // This runs after the loading screen has been removed
+    console.log("[VIDEO] Loading state changed:", loading);
+
+    // Start the video only after the loading screen disappears
     if (!loading && videoRef.current && !videoStarted.current) {
       const video = videoRef.current;
+
+      console.log("[VIDEO] Attempting to play video");
+      logVideoState("before play", video);
 
       videoStarted.current = true;
       video.currentTime = 0;
 
-      video.play().catch((error) => {
-        console.error("Video could not play:", error);
-      });
+      video
+        .play()
+        .then(() => {
+          console.log("[VIDEO] Video started successfully");
+          logVideoState("after play", video);
+        })
+        .catch((error) => {
+          console.error("[VIDEO] Play failed:", error);
+          logVideoState("play failed", video);
+        });
     }
   }, [loading]);
+
+  useEffect(() => {
+    console.log("[VIDEO] Component rendered", {
+      videoSrc,
+      currentPage: window.location.href,
+      baseUrl: import.meta.env.BASE_URL,
+    });
+  }, []);
 
   useGSAP(() => {
     gsap.set("#video-frame", {
@@ -72,15 +119,57 @@ const Hero = () => {
       >
         <video
           ref={videoRef}
-          src="/portfolio-website/videos/Hero.mp4"
+          src={videoSrc}
           loop
           muted
           playsInline
           preload="auto"
           className="absolute left-0 top-0 size-full object-cover object-center"
+          onLoadStart={(event) => {
+            console.log("[VIDEO] Loading started");
+            logVideoState("loadstart", event.currentTarget);
+          }}
+          onLoadedMetadata={(event) => {
+            console.log("[VIDEO] Metadata loaded");
+            logVideoState("metadata loaded", event.currentTarget);
+          }}
           onLoadedData={handleVideoReady}
+          onCanPlay={(event) => {
+            console.log("[VIDEO] Video can play");
+            logVideoState("can play", event.currentTarget);
+          }}
+          onCanPlayThrough={(event) => {
+            console.log("[VIDEO] Video can play through");
+            logVideoState("can play through", event.currentTarget);
+          }}
+          onProgress={(event) => {
+            logVideoState("progress", event.currentTarget);
+          }}
+          onWaiting={(event) => {
+            console.log("[VIDEO] Video is waiting");
+            logVideoState("waiting", event.currentTarget);
+          }}
+          onPlaying={(event) => {
+            console.log("[VIDEO] Video is playing");
+            logVideoState("playing", event.currentTarget);
+          }}
+          onStalled={(event) => {
+            console.warn("[VIDEO] Video stalled");
+            logVideoState("stalled", event.currentTarget);
+          }}
+          onSuspend={(event) => {
+            console.warn("[VIDEO] Video suspended");
+            logVideoState("suspend", event.currentTarget);
+          }}
           onError={(event) => {
-            console.error("Video failed to load:", event);
+            const video = event.currentTarget;
+
+            console.error("[VIDEO] VIDEO ERROR", {
+              src: video.currentSrc,
+              errorCode: video.error?.code,
+              errorMessage: video.error?.message,
+            });
+
             setLoading(false);
           }}
         />
