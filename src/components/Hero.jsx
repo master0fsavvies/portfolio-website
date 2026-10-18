@@ -9,69 +9,80 @@ gsap.registerPlugin(ScrollTrigger);
 
 const Hero = () => {
   const [loading, setLoading] = useState(true);
+  const [debugLogs, setDebugLogs] = useState([]);
+
   const videoRef = useRef(null);
   const videoStarted = useRef(false);
 
   const videoSrc = "/portfolio-website/videos/Hero.mp4";
 
-  const logVideoState = (eventName, video) => {
-    console.log(`[VIDEO] ${eventName}`, {
-      src: video.currentSrc || video.src,
-      readyState: video.readyState,
-      networkState: video.networkState,
-      duration: video.duration,
-      currentTime: video.currentTime,
-      buffered:
-        video.buffered.length > 0
-          ? `${video.buffered
-              .end(video.buffered.length - 1)
-              .toFixed(2)} seconds`
-          : "nothing buffered",
-      error: video.error
-        ? {
-            code: video.error.code,
-            message: video.error.message,
-          }
-        : null,
-    });
+  const debugEnabled = new URLSearchParams(
+    window.location.search
+  ).has("debug");
+
+  const addDebugLog = (message, data = null) => {
+    const timestamp = new Date().toLocaleTimeString();
+
+    const logMessage = data
+      ? `${timestamp} - ${message}: ${JSON.stringify(data)}`
+      : `${timestamp} - ${message}`;
+
+    console.log(logMessage);
+
+    setDebugLogs((previousLogs) => [
+      ...previousLogs.slice(-20),
+      logMessage,
+    ]);
   };
 
-  const handleVideoReady = (event) => {
-    console.log("[VIDEO] Video data loaded");
-    logVideoState("loaded data", event.currentTarget);
+  const handleVideoMetadata = (event) => {
+    const video = event.currentTarget;
 
-    // Hide the loading screen
+    addDebugLog("Metadata loaded", {
+      duration: video.duration,
+      readyState: video.readyState,
+      networkState: video.networkState,
+    });
+
+    // Important:
+    // Hide the loading screen when metadata is ready.
+    // Mobile Safari may not load the first frame until playback begins.
     setLoading(false);
   };
 
   useEffect(() => {
-    console.log("[VIDEO] Loading state changed:", loading);
+    addDebugLog("Loading state changed", { loading });
 
     // Start the video only after the loading screen disappears
     if (!loading && videoRef.current && !videoStarted.current) {
       const video = videoRef.current;
 
-      console.log("[VIDEO] Attempting to play video");
-      logVideoState("before play", video);
-
       videoStarted.current = true;
       video.currentTime = 0;
+
+      addDebugLog("Attempting to play video", {
+        src: video.currentSrc || video.src,
+        readyState: video.readyState,
+        networkState: video.networkState,
+      });
 
       video
         .play()
         .then(() => {
-          console.log("[VIDEO] Video started successfully");
-          logVideoState("after play", video);
+          addDebugLog("Video started successfully");
         })
         .catch((error) => {
-          console.error("[VIDEO] Play failed:", error);
-          logVideoState("play failed", video);
+          addDebugLog("Video play failed", {
+            message: error.message,
+          });
+
+          console.error("Video play failed:", error);
         });
     }
   }, [loading]);
 
   useEffect(() => {
-    console.log("[VIDEO] Component rendered", {
+    addDebugLog("Component rendered", {
       videoSrc,
       currentPage: window.location.href,
       baseUrl: import.meta.env.BASE_URL,
@@ -109,6 +120,12 @@ const Hero = () => {
         </div>
       )}
 
+      {debugEnabled && (
+        <pre className="fixed bottom-0 left-0 z-[9999] max-h-[50vh] w-full overflow-auto bg-black p-3 text-xs text-green-400">
+          {debugLogs.join("\n")}
+        </pre>
+      )}
+
       <h1 className="special-font hero-heading absolute bottom-5 right-5 z-1 text-violet-300">
         IN 3D
       </h1>
@@ -126,45 +143,63 @@ const Hero = () => {
           preload="auto"
           className="absolute left-0 top-0 size-full object-cover object-center"
           onLoadStart={(event) => {
-            console.log("[VIDEO] Loading started");
-            logVideoState("loadstart", event.currentTarget);
+            addDebugLog("Video loading started", {
+              src: event.currentTarget.currentSrc,
+            });
           }}
-          onLoadedMetadata={(event) => {
-            console.log("[VIDEO] Metadata loaded");
-            logVideoState("metadata loaded", event.currentTarget);
+          onLoadedMetadata={handleVideoMetadata}
+          onLoadedData={(event) => {
+            addDebugLog("Video data loaded", {
+              readyState: event.currentTarget.readyState,
+              networkState: event.currentTarget.networkState,
+            });
           }}
-          onLoadedData={handleVideoReady}
           onCanPlay={(event) => {
-            console.log("[VIDEO] Video can play");
-            logVideoState("can play", event.currentTarget);
+            addDebugLog("Video can play", {
+              readyState: event.currentTarget.readyState,
+              networkState: event.currentTarget.networkState,
+            });
           }}
           onCanPlayThrough={(event) => {
-            console.log("[VIDEO] Video can play through");
-            logVideoState("can play through", event.currentTarget);
+            addDebugLog("Video can play through", {
+              readyState: event.currentTarget.readyState,
+              networkState: event.currentTarget.networkState,
+            });
           }}
           onProgress={(event) => {
-            logVideoState("progress", event.currentTarget);
+            const video = event.currentTarget;
+
+            addDebugLog("Video progress", {
+              readyState: video.readyState,
+              networkState: video.networkState,
+              buffered:
+                video.buffered.length > 0
+                  ? video.buffered.end(
+                      video.buffered.length - 1
+                    )
+                  : 0,
+            });
           }}
           onWaiting={(event) => {
-            console.log("[VIDEO] Video is waiting");
-            logVideoState("waiting", event.currentTarget);
+            addDebugLog("Video waiting", {
+              currentTime: event.currentTarget.currentTime,
+            });
           }}
           onPlaying={(event) => {
-            console.log("[VIDEO] Video is playing");
-            logVideoState("playing", event.currentTarget);
+            addDebugLog("Video is playing", {
+              currentTime: event.currentTarget.currentTime,
+            });
           }}
-          onStalled={(event) => {
-            console.warn("[VIDEO] Video stalled");
-            logVideoState("stalled", event.currentTarget);
+          onStalled={() => {
+            addDebugLog("Video stalled");
           }}
-          onSuspend={(event) => {
-            console.warn("[VIDEO] Video suspended");
-            logVideoState("suspend", event.currentTarget);
+          onSuspend={() => {
+            addDebugLog("Video suspended");
           }}
           onError={(event) => {
             const video = event.currentTarget;
 
-            console.error("[VIDEO] VIDEO ERROR", {
+            addDebugLog("VIDEO ERROR", {
               src: video.currentSrc,
               errorCode: video.error?.code,
               errorMessage: video.error?.message,
